@@ -8,5 +8,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@fauna-labs/fauna-schema-migrate": "^2.2.1",
+    "faunadb": "^4.5.4"
+  }
 }
