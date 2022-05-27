@@ -5,12 +5,37 @@ Description: >
 
   Sample SAM Template for sam-app
 
+Parameters:
+  FaunaDomain:
+    Type: String
+    Description: >
+      Enter the domain name to access Fauna. 
+
+      As of 27 May 2022 valid production domains are:
+        * `db.us.fauna.com` (US Region Group)
+        * `db.eu.fauna.com` (EU Region Group)
+        * `db.fauna.com` (Classic Region Group)
+    Default: db.fauna.com
+
+  FaunaServerKey:
+    Type: String
+    Description: >
+      A key assigned to the "server" role for accessing Fauna.
+    NoEcho: true
+    AllowedPattern: "^fnA[a-zA-Z0-9+=_-]{37}$"
+
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Tracing: Active
+    Environment:
+      Variables:
+        FAUNA_DOMAIN:
+          Ref: FaunaDomain
+        FAUNA_API_KEY:
+          Ref: FaunaServerKey
 
 Resources:
   ################################################################################
@@ -50,7 +75,7 @@ Resources:
       DefinitionUri: statemachine/GetNewMessages.asl.yaml
       DefinitionSubstitutions:
         GetNewMessagesFunctionArn: !GetAtt GetNewMessagesFunction.Arn
-        StoreTranslatedMessageFunctionArn: !GetAtt StoreTranslatedMessage.Arn
+        StoreTranslatedMessageFunctionArn: !GetAtt StoreTranslatedMessageFunction.Arn
       Events:
         ApiEvent:
           Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-statemachineapi.html
@@ -61,7 +86,7 @@ Resources:
         - LambdaInvokePolicy:
             FunctionName: !Ref GetNewMessagesFunction
         - LambdaInvokePolicy:
-            FunctionName: !Ref StoreTranslatedMessage
+            FunctionName: !Ref StoreTranslatedMessageFunction
 
   GetNewMessagesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
@@ -75,7 +100,7 @@ Resources:
   StoreTranslatedMessageFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      CodeUri: functions/storTranslatedMessage/
+      CodeUri: functions/storeTranslatedMessage/
       Handler: app.lambdaHandler
       Runtime: nodejs16.x
       Architectures:
