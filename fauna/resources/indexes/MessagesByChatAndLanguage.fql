@@ -1,0 +1,25 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+
+// TODO: Create and name required indexes for retrieving messages by chat and language, sorted by timestamp.
+CreateIndex({
+  name: "MessagesByChatAndLanguage",
+  source: Collection("Messages"),
+  terms: [
+    { field: ["data", "chat"] },
+    { field: ["data", "translations", "language"] }
+  ],
+  values: [
+    { field: ["data", "translations", "text"] }
+  ]
+})
+
+// Shape of a Message:
+// {
+//   chat: Ref(Collection("Chats"), "1234567890"),
+//   originalText: "A string",
+//   originalLanguage: "en",
+//   translations: [
+//     { language: "fr", text: "Un string" }
+//   ]
+// }

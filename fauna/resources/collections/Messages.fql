@@ -1,0 +1,15 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+CreateCollection({
+  name: "Messages"
+})
+
+// Shape of a Message:
+// {
+//   chat: Ref(Collection("Chats"), "1234567890"),
+//   originalText: "A string",
+//   originalLanguage: "en",
+//   translations: [
+//     { language: "fr", text: "Un string" }
+//   ]
+// }

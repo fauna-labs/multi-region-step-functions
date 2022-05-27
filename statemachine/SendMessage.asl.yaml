@@ -1,0 +1,19 @@
+Comment: A description of my state machine
+StartAt: Write message to Fauna
+States:
+  Write message to Fauna:
+    Type: Task
+    Resource: ${SendMessageFunctionArn}
+    OutputPath: $.Payload
+    Parameters:
+      Payload.$: $
+      FunctionName.$: $.lambdaName
+    Retry:
+      - ErrorEquals:
+          - Lambda.ServiceException
+          - Lambda.AWSLambdaException
+          - Lambda.SdkClientException
+        IntervalSeconds: 2
+        MaxAttempts: 6
+        BackoffRate: 2
+    End: true

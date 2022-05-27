@@ -1,0 +1,13 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+CreateCollection({
+  name: "Chats"
+})
+
+// Shape of a Chat:
+// {
+//   users: [
+//     Ref(Collection("Users"), "1234567890"),
+//     Ref(Collection("Users"), "2345678901")
+//   ]
+// }

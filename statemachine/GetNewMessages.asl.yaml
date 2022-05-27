@@ -1,0 +1,56 @@
+Comment: A description of my state machine
+StartAt: Retrieve message
+States:
+  Retrieve message:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    OutputPath: $.Payload
+    Parameters:
+      Payload.$: $
+      FunctionName.$: $.myLambda
+    Retry:
+      - ErrorEquals:
+          - Lambda.ServiceException
+          - Lambda.AWSLambdaException
+          - Lambda.SdkClientException
+        IntervalSeconds: 2
+        MaxAttempts: 6
+        BackoffRate: 2
+    Next: Is message available in requested locale?
+  Is message available in requested locale?:
+    Type: Choice
+    Choices:
+      - Not:
+          Variable: $.message.originalLocale
+          StringEqualsPath: $.request.requestedLocale
+        Next: Check each message
+  Check each message:
+    Type: Map
+    End: true
+    Iterator:
+      StartAt: Translate Message
+      States:
+        Translate Message:
+          Type: Task
+          Parameters:
+            SourceLanguageCode: MyData
+            TargetLanguageCode: MyData
+            Text: MyData
+          Resource: arn:aws:states:::aws-sdk:translate:translateText
+          Next: Store translation
+        Store translation:
+          Type: Task
+          Resource: arn:aws:states:::lambda:invoke
+          OutputPath: $.Payload
+          Parameters:
+            Payload.$: $
+            FunctionName.$: $.storeLambda
+          Retry:
+            - ErrorEquals:
+                - Lambda.ServiceException
+                - Lambda.AWSLambdaException
+                - Lambda.SdkClientException
+              IntervalSeconds: 2
+              MaxAttempts: 6
+              BackoffRate: 2
+          End: true

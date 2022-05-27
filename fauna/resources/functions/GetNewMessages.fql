@@ -1,0 +1,39 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+CreateFunction({
+  name: "GetNewMessages",
+  body: Query(Lambda(
+    ["chatId", "requestedLanguage", "lastSeenAt"],
+    // Return an array containing:
+    // - the messages sent after the Var("lastSeenAt") timestamp
+    // - or all messages if Var("lastSeenAt") is null
+    // - where .translations.language is equal to Var("requestedLanguage") if available
+    // - or send the original message if not or if requestedLanguage is null.
+    // Array should look like:
+    // [ { id: 1, timestamp: 0000001, language: "en", message: "Hello" }, { id: 2, timestamp: 0000002, language: "fr", message: "Tout le monde" } ]
+    // Sort order is not guaranteed and should be handled by the client.
+    // TODO: See if we can return in sorted order (handled by the index).
+    // DOES NOT CONSIDER PAGINATION - returns up to 100,000 messages.
+
+    // TODO: Replace below with complete implementation.
+    Paginate(
+      Match(
+        Index("MessagesByChatAndLanguage"),
+        [
+          Var("chatId"),
+          Var("requestedLanguage")
+        ]
+      )
+    )
+  ))
+})
+
+// Shape of a Message:
+// {
+//   chat: Ref(Collection("Chats"), "1234567890"),
+//   originalText: "A string",
+//   originalLanguage: "en",
+//   translations: [
+//     { language: "fr", text: "Un string" }
+//   ]
+// }
