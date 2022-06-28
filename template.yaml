@@ -11,7 +11,7 @@ Parameters:
     Description: >
       Enter the domain name to access Fauna. 
 
-      As of 27 May 2022 valid production domains are:
+      As of 28 June 2022 valid production domains are:
         * `db.us.fauna.com` (US Region Group)
         * `db.eu.fauna.com` (EU Region Group)
         * `db.fauna.com` (Classic Region Group)
@@ -60,8 +60,8 @@ Resources:
   SendMessageFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      CodeUri: functions/sendMessage/
-      Handler: app.lambdaHandler
+      CodeUri: functions/
+      Handler: app.sendMessage
       Runtime: nodejs16.x
       Architectures:
         - x86_64
@@ -91,8 +91,8 @@ Resources:
   GetNewMessagesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      CodeUri: functions/getNewMessages/
-      Handler: app.lambdaHandler
+      CodeUri: functions/
+      Handler: app.getNewMessages
       Runtime: nodejs16.x
       Architectures:
         - x86_64
@@ -100,8 +100,8 @@ Resources:
   StoreTranslatedMessageFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      CodeUri: functions/storeTranslatedMessage/
-      Handler: app.lambdaHandler
+      CodeUri: functions/
+      Handler: app.storeTranslatedMessage
       Runtime: nodejs16.x
       Architectures:
         - x86_64

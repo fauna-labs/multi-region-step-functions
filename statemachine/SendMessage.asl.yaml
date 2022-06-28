@@ -4,10 +4,6 @@ States:
   Write message to Fauna:
     Type: Task
     Resource: ${SendMessageFunctionArn}
-    OutputPath: $.Payload
-    Parameters:
-      Payload.$: $
-      FunctionName.$: $.lambdaName
     Retry:
       - ErrorEquals:
           - Lambda.ServiceException

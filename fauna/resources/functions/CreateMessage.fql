@@ -5,16 +5,27 @@ CreateFunction({
   name: "CreateMessage",
   body: Query(Lambda(
     ["chat", "language", "text"],
-    Create(
-      Collection("Messages"), 
-      {
-        data: {
-          chat: Var("chat"),
-          originalText: Var("text"),
-          originalLanguage: Var("language")
+    Let({
+      newMessage: Create(
+        Collection("Messages"), 
+        {
+          data: {
+            chat: Var("chat"),
+            originalText: Var("text"),
+            originalLanguage: Var("language"),
+            translations: [
+              { language: Var("language"), text: Var("text") }
+            ]
+          }
         }
-      }
-    )
+      )
+    },
+    {
+      id: Select(["ref", "id"], Var("newMessage")),
+      chat: Select(["data", "chat"], Var("newMessage")),
+      originalText: Select(["data", "originalText"], Var("newMessage")),
+      originalLanguage: Select(["data", "originalLanguage"], Var("newMessage"))
+    })
   ))
 })
 
