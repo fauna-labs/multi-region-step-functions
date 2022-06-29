@@ -4,41 +4,41 @@
 import faunadb from 'faunadb';
 
 export async function sendMessage(event) {
-    const chat = event["chat"];
+    const chatID = event["chatID"];
     const language = event["language"];
-    const message = event["message"];
+    const text = event["text"];
 
-    const options = {
-        secret: process.env.FAUNA_API_KEY,
-        domain: process.env.FAUNA_DOMAIN,
-    }
-
-    const client = createClient(options);
-
-    try {
-        const { Call } = faunadb.query;
-
-        const result = await client.query(
-            Call(
-                'CreateMessage',
-                [chat, language, message]
-            )
-        );
-
-        return result;
-
-    } catch (e) {
-        const faunaError = getFaunaError(e);
-
-        return faunaError;
-    }
+    return await callUDF(
+        "CreateMessage", 
+        [chatID, language, text]
+    );
 };
 
 export async function getNewMessages(event) {
-    const chat = event["chat"];
+    const chatID = event["chatID"];
     const language = event["language"];
     const lastSeenAt = event["lastSeenAt"] || null;
 
+    return await callUDF(
+        "GetNewMessages", 
+        [chatID, language, lastSeenAt]
+    );
+}
+
+export async function storeTranslatedMessage(event) {
+    const messageID = event["messageID"];
+    const language = event["translation"]["TargetLanguageCode"];
+    const text = event["translation"]["TranslatedText"];
+
+    return await callUDF(
+        "StoreTranslation", 
+        [messageID, language, text]
+    );
+
+}
+
+// Helper functions
+async function callUDF(name, args) {
     const options = {
         secret: process.env.FAUNA_API_KEY,
         domain: process.env.FAUNA_DOMAIN,
@@ -51,8 +51,8 @@ export async function getNewMessages(event) {
 
         const result = await client.query(
             Call(
-                'GetNewMessages',
-                [chat, language, lastSeenAt]
+                name,
+                args
             )
         );
 
@@ -65,11 +65,6 @@ export async function getNewMessages(event) {
     }
 }
 
-export async function storeTranslatedMessage(event) {
-    return true;
-}
-
-// Helper functions
 function createClient(options) {
     return new faunadb.Client({
         ...options,

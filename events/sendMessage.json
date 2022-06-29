@@ -1,5 +1,5 @@
 {
-  "chat": "1",
+  "chatID": "1",
   "language": "en",
-  "message": "Hello, Fauna!"
+  "text": "Hello, Fauna!"
 }

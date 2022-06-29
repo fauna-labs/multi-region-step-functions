@@ -20,9 +20,9 @@ States:
   Check each message:
     Type: Map
     Iterator:
-      StartAt: Is message available in requested locale?
+      StartAt: Does message need to be translated?
       States:
-        Is message available in requested locale?:
+        Does message need to be translated?:
           Type: Choice
           Choices:
             - Not:
@@ -33,18 +33,15 @@ States:
         Translate message:
           Type: Task
           Parameters:
-            SourceLanguageCode: "en"
-            TargetLanguageCode: "ar"
+            SourceLanguageCode.$: $.language
+            TargetLanguageCode.$: $$.Execution.Input.language
             Text.$: $.text
           Resource: arn:aws:states:::aws-sdk:translate:translateText
+          ResultPath: $.translation
           Next: Store translation
         Store translation:
           Type: Task
           Resource: ${StoreTranslatedMessageFunctionArn}
-          OutputPath: $.Payload
-          Parameters:
-            Payload.$: $
-            FunctionName.$: $.storeLambda
           Retry:
             - ErrorEquals:
                 - Lambda.ServiceException

@@ -1,19 +1,33 @@
 // Copyright Fauna, Inc.
 // SPDX-License-Identifier: MIT-0
+
 CreateFunction({
   name: "StoreTranslation",
   body: Query(Lambda(
     ["messageID", "language", "text"],
-    Create(
-      Collection("Translations"),
-      {
-        data: {
-          message: Ref(Collection("Messages"), Var("messageID")),
-          language: Var("language"),
-          text: Var("text"),
+    Let({
+      message: Get(Ref(Collection("Messages"), Var("messageID"))),
+      newTranslation: Create(
+        Collection("Translations"),
+        {
+          data: {
+            message: Ref(Collection("Messages"), Var("messageID")),
+            language: Var("language"),
+            text: Var("text"),
+          }
         }
-      }
-    )
+      )
+    },
+    {
+      chatID:         Select(["data", "chat"], Var("message")),
+      messageID:      Select(["data", "message", "id"], Var("newTranslation")),
+      language:       Select(["data", "language"], Var("newTranslation")),
+      text:           Select(["data", "text"], Var("newTranslation")),
+      // Note that the timestamp should come from the original message. When the 
+      // translation was stored is irrelevant.
+      timestamp:      Select(["ts"], Var("message")),
+      translationID:  Select(["ref", "id"], Var("newTranslation")),
+    })
   ))
 })
 

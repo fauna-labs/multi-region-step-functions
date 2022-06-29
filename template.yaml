@@ -90,6 +90,7 @@ Resources:
             FunctionName: !Ref GetNewMessagesFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref StoreTranslatedMessageFunction
+        - arn:aws:iam::aws:policy/TranslateReadOnly
 
   GetNewMessagesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html

@@ -1,5 +1,6 @@
 // Copyright Fauna, Inc.
 // SPDX-License-Identifier: MIT-0
+
 CreateFunction({
   name: "GetNewMessages",
   body: Query(Lambda(
@@ -57,7 +58,12 @@ CreateFunction({
             // pair, we can use Get() to return the "first" (only) message in the
             // set. If the set is empty, we instead use the text and language from
             // the original message.
-            message: If(
+            translationID: If(
+              IsNonEmpty(Var("translatedMessage")),
+              Select(["ref", "id"], Get(Var("translatedMessage"))),
+              null
+            ),
+            translation: If(
               IsNonEmpty(Var("translatedMessage")),
               Select(["data"], Get(Var("translatedMessage"))),
               {
@@ -67,11 +73,12 @@ CreateFunction({
             )
           },
           {
-            id:         Var("messageID"),
-            timestamp:  Var("timestamp"),
-            chat:       Var("chat"),
-            language:   Select(["language"], Var("message")),
-            text:       Select(["text"], Var("message")),
+            chatID:         Var("chat"),
+            messageID:      Var("messageID"),
+            language:       Select(["language"], Var("translation")),
+            text:           Select(["text"], Var("translation")),
+            timestamp:      Var("timestamp"),
+            translationID:  Var("translationID"),
           }
         )
       )
