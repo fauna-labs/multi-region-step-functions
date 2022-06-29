@@ -7,6 +7,6 @@ CreateCollection({
 // Shape of a Message:
 // {
 //   chat: "1234567890",
+//   originalLanguage: "en",
 //   originalText: "A string",
-//   originalLanguage: "en"
 // }

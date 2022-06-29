@@ -6,7 +6,7 @@ CreateCollection({
 
 // Shape of a Translation:
 // {
-//   chat: Ref(Collection("Chats"), "1234567890"),
-//   originalText: "A string",
-//   originalLanguage: "en",
+//   message: Ref(Collection("Messages"), "1234567890"),
+//   language: "en",
+//   text: "A string",
 // }

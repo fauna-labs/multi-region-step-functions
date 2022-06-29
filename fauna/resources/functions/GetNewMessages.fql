@@ -11,15 +11,18 @@ CreateFunction({
     // - or send the original message if not or if requestedLanguage is null.
     // Array should look like:
     // [ 
-    //   { id: "1", timestamp: "0000001", chat: "1", language: "fr", message: "Bonjour" },
-    //   { id: "2", timestamp: "0000002", chat: "1", language: "en", message: "How are you?" }
+    //   { id: "1", timestamp: "0000001", chat: "1", language: "fr", text: "Bonjour" },
+    //   { id: "2", timestamp: "0000002", chat: "1", language: "en", text: "How are you?" }
     // ]
     // NOTE: This uses the default pagination, returning up to 64 messages.
     Map(
+      // This Paginate() block creates a list of the first 64 messages sent after the last
+      // seen timestamp, if provided. If not, it creates a list of the first 64 messages
+      // in the chat.
       Paginate(
         Range(
           Match(
-            Index("MessagesByChat_SortedByTimestamp"),
+            Index("MessagesByChat"),
             [
               Var("chatId")
             ]
@@ -32,6 +35,8 @@ CreateFunction({
           Now()
         )
       ),
+      // For each message, we return the translated version if it exists, or the original
+      // if not.
       Lambda(
         "match",
         Let(
@@ -39,8 +44,8 @@ CreateFunction({
             timestamp: Select(0, Var("match")),
             messageID: Select(1, Var("match")),
             chat: Select(2, Var("match")),
-            originalText: Select(3, Var("match")),
-            originalLanguage: Select(4, Var("match")),
+            originalLanguage: Select(3, Var("match")),
+            originalText: Select(4, Var("match")),
             translatedMessage: Match(
               Index("TranslationsByMessageAndLanguage"),
               [
@@ -56,8 +61,8 @@ CreateFunction({
               IsNonEmpty(Var("translatedMessage")),
               Select(["data"], Get(Var("translatedMessage"))),
               {
+                language: Var("originalLanguage"),
                 text: Var("originalText"),
-                language: Var("originalLanguage")
               }
             )
           },
@@ -65,8 +70,8 @@ CreateFunction({
             id:         Var("messageID"),
             timestamp:  Var("timestamp"),
             chat:       Var("chat"),
-            text:       Select(["text"], Var("message")),
             language:   Select(["language"], Var("message")),
+            text:       Select(["text"], Var("message")),
           }
         )
       )
@@ -77,13 +82,13 @@ CreateFunction({
 // Shape of a Message:
 // {
 //   chat: "1234567890",
-//   originalText: "A string",
 //   originalLanguage: "en",
+//   originalText: "A string",
 // }
 
 // Shape of a Translation:
 // {
-//   chat: Ref(Collection("Chats"), "1234567890"),
-//   originalText: "A string",
-//   originalLanguage: "en",
+//   message: Ref(Collection("Messages"), "1234567890"),
+//   language: "en",
+//   text: "A string",
 // }

@@ -6,17 +6,17 @@ CreateIndex({
   source: Collection("Translations"),
   terms: [
     { field: ["data", "message"] },
-    { field: ["data", "language"] }
+    { field: ["data", "language"] },
   ],
   values: [
+    { field: ["data", "language"] },
     { field: ["data", "text"] },
-    { field: ["data", "language"] }
   ]
 })
 
 // Shape of a Translation:
 // {
 //   chat: Ref(Collection("Chats"), "1234567890"),
-//   originalText: "A string",
 //   originalLanguage: "en",
+//   originalText: "A string",
 // }

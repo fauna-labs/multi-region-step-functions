@@ -1,0 +1,25 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+CreateFunction({
+  name: "StoreTranslation",
+  body: Query(Lambda(
+    ["messageID", "language", "text"],
+    Create(
+      Collection("Translations"),
+      {
+        data: {
+          message: Ref(Collection("Messages"), Var("messageID")),
+          language: Var("language"),
+          text: Var("text"),
+        }
+      }
+    )
+  ))
+})
+
+// Shape of a Translation:
+// {
+//   message: Ref(Collection("Messages"), "1234567890"),
+//   language: "en",
+//   text: "A string",
+// }
