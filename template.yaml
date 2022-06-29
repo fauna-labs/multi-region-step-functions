@@ -42,20 +42,53 @@ Globals:
 
 Resources:
   ################################################################################
+  # HTTP API and associated role for invoking Step Functions workflows
+  ################################################################################
+  HttpApiForSynchronousWorkflows:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: openapi.yaml
+
+  HttpApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+      - PolicyName: AllowSFNExec
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: "states:StartSyncExecution"
+              Resource: !GetAtt SendMessageStateMachine.Arn
+            - Effect: Allow
+              Action: "states:StartSyncExecution"
+              Resource: !GetAtt GetNewMessagesStateMachine.Arn
+
+  ################################################################################
   # Resources for sending new messages
   ################################################################################
   SendMessageStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
+      Type: EXPRESS
+      Tracing: 
+        Enabled: true
       DefinitionUri: statemachine/SendMessage.asl.yaml
       DefinitionSubstitutions:
         SendMessageFunctionArn: !GetAtt SendMessageFunction.Arn
-      Events:
-        ApiEvent:
-          Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-statemachineapi.html
-          Properties:
-            Method: post
-            Path: /chats/{chatId}/messages
       Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
         - LambdaInvokePolicy:
             FunctionName: !Ref SendMessageFunction
@@ -75,16 +108,13 @@ Resources:
   GetNewMessagesStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
+      Type: EXPRESS
+      Tracing: 
+        Enabled: true
       DefinitionUri: statemachine/GetNewMessages.asl.yaml
       DefinitionSubstitutions:
         GetNewMessagesFunctionArn: !GetAtt GetNewMessagesFunction.Arn
         StoreTranslatedMessageFunctionArn: !GetAtt StoreTranslatedMessageFunction.Arn
-      Events:
-        ApiEvent:
-          Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-statemachineapi.html
-          Properties:
-            Method: get
-            Path: /chats/{chatId}/messages
       Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
         - LambdaInvokePolicy:
             FunctionName: !Ref GetNewMessagesFunction
@@ -119,11 +149,6 @@ Outputs:
     Description: "Get New Messages state machine ARN"
     Value: !Ref GetNewMessagesStateMachine
 
-  # When the Event property of an AWS::Serverless::Function is set to Api, but the RestApiId property is not specified, AWS SAM generates the AWS::ApiGateway::RestApi AWS CloudFormation resource.
-  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-generated-resources-function.html#sam-specification-generated-resources-function-api
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-
-  # Find out more about other implicit resources you can reference within SAM
-  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-generated-resources.html
+    Value: !Sub https://${HttpApiForSynchronousWorkflows}.execute-api.${AWS::Region}.amazonaws.com

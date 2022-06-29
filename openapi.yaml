@@ -1,0 +1,87 @@
+# Copyright Fauna, Inc.
+# SPDX-License-Identifier: MIT-0
+
+openapi: "3.0.1"
+info:
+  title: "sfn-blog"
+  version: "0.1.0"
+paths:
+  /chats/{chatID}/messages:
+    post:
+      parameters:
+      - name: "chatID"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "400 response"
+          content: {}
+        "200":
+          description: "200 response"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        credentials:
+          Fn::GetAtt: [HttpApiRole, Arn]
+        integrationSubtype: "StepFunctions-StartSyncExecution"
+        requestParameters:
+          Input: "$request.body"
+          StateMachineArn: 
+            Fn::GetAtt: [SendMessageStateMachine, Arn]
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: "{\"output\":$input.json('$.output')}"
+          "400":
+            statusCode: "400"
+        payloadFormatVersion: "1.0"
+        connectionType: "INTERNET"
+  /chats/{chatID}/messages/{language}:
+    get:
+      parameters:
+      - name: "chatID"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "language"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      # - name: "lastSeenAt"
+      #   in: querystring
+      #   required: false
+      responses:
+        "400":
+          description: "400 response"
+          content: {}
+        "200":
+          description: "200 response"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        credentials:
+          Fn::GetAtt: [HttpApiRole, Arn]
+        integrationSubtype: "StepFunctions-StartSyncExecution"
+        requestParameters:
+          # Input: $request.body
+          Input:
+            chatID: $request.path.chatID
+            language: $request.path.language
+            lastSeenAt: $request.queryString.lastSeenAt
+          StateMachineArn: 
+            Fn::GetAtt: [GetNewMessagesStateMachine, Arn]
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: "{\"output\":$input.json('$.output')}"
+          "400":
+            statusCode: "400"
+        payloadFormatVersion: "1.0"
+        connectionType: "INTERNET"
+components: {}
