@@ -8,7 +8,6 @@ CreateIndex({
     { field: ["data", "message"] },
     { field: ["data", "language"] }
   ],
-  unique: true,
   values: [
     { field: ["data", "text"] },
     { field: ["data", "language"] }

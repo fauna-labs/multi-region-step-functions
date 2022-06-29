@@ -17,12 +17,19 @@ CreateFunction({
     // NOTE: This uses the default pagination, returning up to 64 messages.
     Map(
       Paginate(
-        // Range(_, Var("lastSeenAt"), Now())
-        Match(
-          Index("MessagesByChat_SortedByTimestamp"),
-          [
-            Var("chatId")
-          ]
+        Range(
+          Match(
+            Index("MessagesByChat_SortedByTimestamp"),
+            [
+              Var("chatId")
+            ]
+          ),
+          If(
+            IsNull(Var("lastSeenAt")),
+            0,
+            Var("lastSeenAt")
+          ),
+          Now()
         )
       ),
       Lambda(
@@ -41,10 +48,10 @@ CreateFunction({
                 Var("requestedLanguage")
               ]
             ),
-            // Because our index enforces uniqueness for a given message/language pair,
-            // we can use Get() to return the "first" (only) message in the set.
-            // If the set is empty, we instead use the text and language from the
-            // original message.
+            // Because there should only be one translation for a message/language
+            // pair, we can use Get() to return the "first" (only) message in the
+            // set. If the set is empty, we instead use the text and language from
+            // the original message.
             message: If(
               IsNonEmpty(Var("translatedMessage")),
               Select(["data"], Get(Var("translatedMessage"))),
