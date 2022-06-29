@@ -1,0 +1,12 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+CreateCollection({
+  name: "Translations"
+})
+
+// Shape of a Translation:
+// {
+//   chat: Ref(Collection("Chats"), "1234567890"),
+//   originalText: "A string",
+//   originalLanguage: "en",
+// }

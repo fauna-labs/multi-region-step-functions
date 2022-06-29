@@ -1,13 +1,13 @@
+# Copyright Fauna, Inc.
+# SPDX-License-Identifier: MIT-0
+
 Comment: A description of my state machine
-StartAt: Retrieve message
+StartAt: Retrieve new messages
 States:
-  Retrieve message:
+  Retrieve new messages:
     Type: Task
-    Resource: arn:aws:states:::lambda:invoke
-    OutputPath: $.Payload
-    Parameters:
-      Payload.$: $
-      FunctionName.$: $.myLambda
+    Resource: ${GetNewMessagesFunctionArn}
+    OutputPath: $.data
     Retry:
       - ErrorEquals:
           - Lambda.ServiceException
@@ -16,31 +16,31 @@ States:
         IntervalSeconds: 2
         MaxAttempts: 6
         BackoffRate: 2
-    Next: Is message available in requested locale?
-  Is message available in requested locale?:
-    Type: Choice
-    Choices:
-      - Not:
-          Variable: $.message.originalLocale
-          StringEqualsPath: $.request.requestedLocale
-        Next: Check each message
+    Next: Check each message
   Check each message:
     Type: Map
-    End: true
     Iterator:
-      StartAt: Translate Message
+      StartAt: Is message available in requested locale?
       States:
-        Translate Message:
+        Is message available in requested locale?:
+          Type: Choice
+          Choices:
+            - Not:
+                Variable: $.language
+                StringEqualsPath: $$.Execution.Input.language
+              Next: Translate message
+          Default: Return translated message
+        Translate message:
           Type: Task
           Parameters:
-            SourceLanguageCode: MyData
-            TargetLanguageCode: MyData
-            Text: MyData
+            SourceLanguageCode: "en"
+            TargetLanguageCode: "ar"
+            Text.$: $.text
           Resource: arn:aws:states:::aws-sdk:translate:translateText
           Next: Store translation
         Store translation:
           Type: Task
-          Resource: arn:aws:states:::lambda:invoke
+          Resource: ${StoreTranslatedMessageFunctionArn}
           OutputPath: $.Payload
           Parameters:
             Payload.$: $
@@ -53,4 +53,11 @@ States:
               IntervalSeconds: 2
               MaxAttempts: 6
               BackoffRate: 2
+          Next: Return translated message
+        Return translated message:
+          Type: Pass
           End: true
+    Next: Return all translated messages
+  Return all translated messages:
+    Type: Pass
+    End: true

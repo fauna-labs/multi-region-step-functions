@@ -1,0 +1,24 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+
+CreateIndex({
+  name: "MessagesByChat_SortedByTimestamp",
+  source: Collection("Messages"),
+  terms: [
+    { field: ["data", "chat"] }
+  ],
+  values: [
+    { field: ["ts"] },
+    { field: ["ref", "id"] },
+    { field: ["data", "chat"] },
+    { field: ["data", "originalText"] },
+    { field: ["data", "originalLanguage"] },
+  ]
+})
+
+// Shape of a Message:
+// {
+//   chat: "1234567890",
+//   originalText: "A string",
+//   originalLanguage: "en",
+// }

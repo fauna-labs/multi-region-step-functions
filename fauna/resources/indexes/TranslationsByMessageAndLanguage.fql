@@ -1,0 +1,23 @@
+// Copyright Fauna, Inc.
+// SPDX-License-Identifier: MIT-0
+
+CreateIndex({
+  name: "TranslationsByMessageAndLanguage",
+  source: Collection("Translations"),
+  terms: [
+    { field: ["data", "message"] },
+    { field: ["data", "language"] }
+  ],
+  unique: true,
+  values: [
+    { field: ["data", "text"] },
+    { field: ["data", "language"] }
+  ]
+})
+
+// Shape of a Translation:
+// {
+//   chat: Ref(Collection("Chats"), "1234567890"),
+//   originalText: "A string",
+//   originalLanguage: "en",
+// }

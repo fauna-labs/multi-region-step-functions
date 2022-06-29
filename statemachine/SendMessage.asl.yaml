@@ -1,3 +1,6 @@
+# Copyright Fauna, Inc.
+# SPDX-License-Identifier: MIT-0
+
 Comment: A description of my state machine
 StartAt: Write message to Fauna
 States:

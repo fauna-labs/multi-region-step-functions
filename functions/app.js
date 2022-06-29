@@ -35,7 +35,34 @@ export async function sendMessage(event) {
 };
 
 export async function getNewMessages(event) {
-    return true;
+    const chat = event["chat"];
+    const language = event["language"];
+    const lastSeenAt = event["lastSeenAt"] || null;
+
+    const options = {
+        secret: process.env.FAUNA_API_KEY,
+        domain: process.env.FAUNA_DOMAIN,
+    }
+
+    const client = createClient(options);
+
+    try {
+        const { Call } = faunadb.query;
+
+        const result = await client.query(
+            Call(
+                'GetNewMessages',
+                [chat, language, lastSeenAt]
+            )
+        );
+
+        return result;
+
+    } catch (e) {
+        const faunaError = getFaunaError(e);
+
+        return faunaError;
+    }
 }
 
 export async function storeTranslatedMessage(event) {
