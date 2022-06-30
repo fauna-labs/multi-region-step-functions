@@ -19,6 +19,8 @@ export async function getNewMessages(event) {
     const language = event["language"];
     const lastSeenAt = event["lastSeenAt"] || 0;
 
+    console.log({ chatID, language, lastSeenAt });
+
     return await callUDF(
         "GetNewMessages", 
         [chatID, language, lastSeenAt]

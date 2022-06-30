@@ -38,7 +38,7 @@ paths:
         requestTemplates:
           application/json:
             Fn::Sub: |-
-              #set($chatID = $input.params('chatID'))
+              #set($chatID = $util.escapeJavaScript($input.params('chatID')))
               #set($language = $util.escapeJavaScript($input.json('$.language')))
               #set($text = $util.escapeJavaScript($input.json('$.text')))
 
@@ -63,6 +63,8 @@ paths:
       - name: "lastSeenAt"
         in: query
         required: false
+        schema:
+          type: "string"
       responses:
         "400":
           description: "400 response"
@@ -87,9 +89,14 @@ paths:
         requestTemplates:
           application/json:
             Fn::Sub: |-
-              #set($chatID = $input.params('chatID'))
-              #set($language = $input.params('language'))
-              #set($lastSeenAt = $input.params('lastSeenAt'))
+              #set($chatID = $util.escapeJavaScript($input.params('chatID')))
+              #set($language = $util.escapeJavaScript($input.params('language')))
+
+              #if($util.isNullOrEmpty($input.params('lastSeenAt')))
+              #set($lastSeenAt = 0)
+              #else
+              #set($lastSeenAt = $util.escapeJavaScript($input.params('lastSeenAt')))
+              #end
 
               {
                 "input": "{\"chatID\":$chatID,\"language\":\"$language\",\"lastSeenAt\":$lastSeenAt}",

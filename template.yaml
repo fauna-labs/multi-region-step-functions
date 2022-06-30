@@ -129,6 +129,7 @@ Resources:
       CodeUri: functions/
       Handler: app.getNewMessages
       Runtime: nodejs16.x
+      Timeout: 30
       Architectures:
         - x86_64
 
