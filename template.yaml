@@ -42,18 +42,19 @@ Globals:
 
 Resources:
   ################################################################################
-  # HTTP API and associated role for invoking Step Functions workflows
+  # REST API and associated role for invoking Step Functions workflows
   ################################################################################
-  HttpApiForSynchronousWorkflows:
-    Type: AWS::Serverless::HttpApi
+  RestApiForSynchronousWorkflows:
+    Type: AWS::Serverless::Api
     Properties:
+      StageName: Prod
       DefinitionBody:
         Fn::Transform:
           Name: AWS::Include
           Parameters:
             Location: openapi.yaml
 
-  HttpApiRole:
+  RestApiRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -151,4 +152,4 @@ Outputs:
 
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub https://${HttpApiForSynchronousWorkflows}.execute-api.${AWS::Region}.amazonaws.com
+    Value: !Sub https://${RestApiForSynchronousWorkflows}.execute-api.${AWS::Region}.amazonaws.com/Prod
