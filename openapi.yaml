@@ -47,49 +47,53 @@ paths:
                 "stateMachineArn": "${SendMessageStateMachine}"
               }
         passthroughBehavior: "when_no_templates"
-  # /chats/{chatID}/messages/{language}:
-  #   get:
-  #     parameters:
-  #     - name: "chatID"
-  #       in: "path"
-  #       required: true
-  #       schema:
-  #         type: "string"
-  #     - name: "language"
-  #       in: "path"
-  #       required: true
-  #       schema:
-  #         type: "string"
-  #     # - name: "lastSeenAt"
-  #     #   in: querystring
-  #     #   required: false
-  #     responses:
-  #       "400":
-  #         description: "400 response"
-  #         content: {}
-  #       "200":
-  #         description: "200 response"
-  #         content: {}
-  #     x-amazon-apigateway-integration:
-  #       type: "aws_proxy"
-  #       credentials:
-  #         Fn::GetAtt: [RestApiRole, Arn]
-  #       integrationSubtype: "StepFunctions-StartSyncExecution"
-  #       requestParameters:
-  #         Input: $request.body
-  #         # Input:
-  #         #   chatID: $request.path.chatID
-  #         #   language: $request.path.language
-  #         #   lastSeenAt: $request.queryString.lastSeenAt
-  #         StateMachineArn: 
-  #           Fn::GetAtt: [GetNewMessagesStateMachine, Arn]
-  #       responses:
-  #         "200":
-  #           statusCode: "200"
-  #           responseTemplates:
-  #             application/json: "{\"output\":$input.json('$.output')}"
-  #         "400":
-  #           statusCode: "400"
-  #       payloadFormatVersion: "1.0"
-  #       connectionType: "INTERNET"
+  /chats/{chatID}/messages/{language}:
+    get:
+      parameters:
+      - name: "chatID"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "language"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "lastSeenAt"
+        in: query
+        required: false
+      responses:
+        "400":
+          description: "400 response"
+          content: {}
+        "200":
+          description: "200 response"
+          content: {}
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::GetAtt: [RestApiRole, Arn]
+        type: "aws"
+        httpMethod: POST
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:states:action/StartSyncExecution
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: $util.parseJson($input.json('$.output'))
+          "400":
+            statusCode: "400"
+        requestTemplates:
+          application/json:
+            Fn::Sub: |-
+              #set($chatID = $input.params('chatID'))
+              #set($language = $input.params('language'))
+              #set($lastSeenAt = $input.params('lastSeenAt'))
+
+              {
+                "input": "{\"chatID\":$chatID,\"language\":\"$language\",\"lastSeenAt\":$lastSeenAt}",
+                "stateMachineArn": "${GetNewMessagesStateMachine}"
+              }
+        passthroughBehavior: "when_no_templates"
 components: {}
