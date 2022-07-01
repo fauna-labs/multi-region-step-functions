@@ -88,39 +88,16 @@ paths:
         requestTemplates:
           application/json:
             Fn::Sub: |-
-              #set($chatID = $util.escapeJavaScript($input.params('chatID')))
-              #set($language = $util.escapeJavaScript($input.params('language')))
-              #if($util.isNumber($input.params('lastSeenAt')))
-                #set($lastSeenAt = $input.params('lastSeenAt'))
-              #else
-                #set($lastSeenAt = 0)
+              #set($chatID = $util.escapeJavaScript($input.params("chatID")))
+              #set($language = $util.escapeJavaScript($input.params("language")))
+              #set($lastSeenAt = $input.params("lastSeenAt"))
+              #if($lastSeenAt == "")
+              #set($lastSeenAt = 0)
               #end
 
               {
                 "input": "{\"chatID\":$chatID,\"language\":\"$language\",\"lastSeenAt\":$lastSeenAt}",
                 "stateMachineArn": "${GetNewMessagesStateMachine}"
               }
-
-            # The following works when the querystring parameter IS NOT provided.
-            # Fn::Sub: |-
-            #   #set($chatID = $util.escapeJavaScript($input.params('chatID')))
-            #   #set($language = $util.escapeJavaScript($input.params('language')))
-            #   #set($lastSeenAt = $util.escapeJavaScript($input.params('lastSeenAt')))
-
-            #   {
-            #     "input": "{\"chatID\":$chatID,\"language\":\"$language\",\"lastSeenAt\":\"$lastSeenAt\"}",
-            #     "stateMachineArn": "${GetNewMessagesStateMachine}"
-            #   }
-
-            # The following works when the querystring parameter IS provided
-            # Fn::Sub: |-
-            #   #set($chatID = $util.escapeJavaScript($input.params('chatID')))
-            #   #set($language = $util.escapeJavaScript($input.params('language')))
-            #   #set($lastSeenAt = $util.escapeJavaScript($input.params('lastSeenAt')))
-
-            #   {
-            #     "input": "{\"chatID\":$chatID,\"language\":\"$language\",\"lastSeenAt\":$lastSeenAt}",
-            #     "stateMachineArn": "${GetNewMessagesStateMachine}"
-            #   }
         passthroughBehavior: "when_no_templates"
 components: {}

@@ -1,16 +1,16 @@
 {
   "name": "sfn-fauna-blog",
   "version": "0.1.0",
-  "description": "This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders:",
+  "description": "Fauna infrastructure as code (IaC) for the blog post 'Achieving multi-region reliability with AWS Step Functions and Fauna",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Fauna Labs <https://github.com/fauna-labs>",
+  "license": "MIT-0",
   "dependencies": {
     "@fauna-labs/fauna-schema-migrate": "^2.2.1",
-    "faunadb": "^4.5.4"
+    "faunadb": "^4.6.0"
   }
 }

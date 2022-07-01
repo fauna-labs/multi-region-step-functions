@@ -1,11 +1,11 @@
 {
   "name": "sfn-fauna-blog",
   "version": "0.1.0",
-  "description": "Example showing multi-region AWS Step Functions and Fauna",
+  "description": "Sample code demonstrating multi-region AWS Step Functions and Fauna",
   "main": "app.js",
   "repository": "TODO",
   "type": "module",
-  "author": "Fauna Inc.",
+  "author": "Fauna Labs <https://github.com/fauna-labs/",
   "license": "MIT-0",
   "dependencies": {
     "faunadb": "^4.6.0"
